@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo</title>
+    <style>
+        .result {
+            display: flex;
+            flex-direction: column;
+            justify-content: right;
+            align-items: start;
+        }
+
+        .todo {
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            gap: 1em;
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+        <input type="text" required placeholder="write todo..." id="todoInput">
+        <button type="submit">+ Add</button>
+    </form>
+
+    <div class="result"></div>
+
+    <script type="module">
+        // Load existing to-do list from localStorage on page load
+        const todoList = JSON.parse(localStorage.getItem('todos')) || [];
+
+        function updateLocalStorage() {
+            localStorage.setItem('todos', JSON.stringify(todoList));
+        }
+
+        function renderTodos() {
+            const resultDiv = document.querySelector('.result');
+            resultDiv.innerHTML = '';
+
+            todoList.forEach((work, index) => {
+                const div = document.createElement('div');
+                div.className = 'todo';
+
+                const p = document.createElement('p');
+                p.textContent = work;
+                div.appendChild(p);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.innerText = 'Delete';
+                deleteButton.addEventListener('click', () => {
+                    todoList.splice(index, 1);
+                    updateLocalStorage();
+                    renderTodos();
+                });
+                div.appendChild(deleteButton);
+
+                const editButton = document.createElement('button');
+                editButton.innerText = 'Edit';
+                editButton.addEventListener('click', () => {
+                    const newValue = prompt('Edit Here', work);
+                    if (newValue !== null) {
+                        todoList[index] = newValue;
+                        updateLocalStorage();
+                        renderTodos();
+                    }
+                });
+                div.appendChild(editButton);
+
+                resultDiv.appendChild(div);
+            });
+        }
+
+        renderTodos();
+
+        document.querySelector('form').addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const work = document.querySelector('#todoInput').value;
+
+            if (work.trim() !== '') {
+                todoList.push(work);
+                updateLocalStorage();
+                renderTodos();
+                document.querySelector('#todoInput').value = '';
+            }
+        });
+    </script>
+</body>
+
+</html>
